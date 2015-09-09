@@ -38,6 +38,14 @@ class ProxyQuery implements ProxyQueryInterface
         $this->uniqueParameterId = 0;
         $this->entityJoinAliases = array();
     }
+    protected function preExecute(Query $query)
+    {
+        
+    }
+    protected function preExecuteId(Query $query)
+    {
+        
+    }
 
     /**
      * {@inheritdoc}
@@ -57,8 +65,10 @@ class ProxyQuery implements ProxyQueryInterface
         } else {
             $queryBuilder->resetDQLPart( 'orderBy' );
         }
-
-        return $this->getFixedQueryBuilder($queryBuilder)->getQuery()->execute($params, $hydrationMode);
+        
+        $query = $this->getFixedQueryBuilder($queryBuilder)->getQuery();
+        $this->preExecute($query);
+        return $query->execute($params, $hydrationMode);
     }
 
     /**
@@ -101,7 +111,9 @@ class ProxyQuery implements ProxyQueryInterface
             $queryBuilderId->addSelect($sortBy);
         }
 
-        $results    = $queryBuilderId->getQuery()->execute(array(), Query::HYDRATE_ARRAY);
+        $query = $queryBuilderId->getQuery();
+        $this->preExecuteId($query);
+        $results    = $query->execute(array(), Query::HYDRATE_ARRAY);
         $idx        = array();
         foreach ($results as $id) {
             $idx[] = $id[$idName];
